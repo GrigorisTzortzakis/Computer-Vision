@@ -1,0 +1,204 @@
+# pspnet_eval.py
+
+
+import collections.abc
+import collections
+collections.Iterable = collections.abc.Iterable
+
+import os
+import sys
+import numpy as np
+import torch
+from torch.utils.data import DataLoader
+import cv2  # for image reading
+import matplotlib.pyplot as plt
+from datetime import datetime
+import importlib.util
+
+# My drive path
+PROJECT_ROOT = '/content/drive/MyDrive/[PUBLIC] CV_1-PYRAMIDS-files (1)'
+
+# Function to load a module from file path
+def load_module_from_path(module_name, file_path):
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+# Load all required modules
+codes_dir = os.path.join(PROJECT_ROOT, 'codes_and_models')
+tfs = load_module_from_path("transform", os.path.join(codes_dir, "transform.py"))
+PSPNet = load_module_from_path("pspnet", os.path.join(codes_dir, "pspnet.py")).PSPNet
+Cityscapes = load_module_from_path("cityscapes_dataset", os.path.join(codes_dir, "cityscapes_dataset.py")).Cityscapes
+
+
+class CityscapesEval(Cityscapes):
+    def __init__(self, *args, **kwargs):
+        
+        super(CityscapesEval, self).__init__(*args, **kwargs)
+        
+        if self.split == 'val' and not hasattr(self, 'transform'):
+            
+            mean = [m * 255 for m in [0.485, 0.456, 0.406]]
+            std  = [s * 255 for s in [0.229, 0.224, 0.225]]
+            self.transform = tfs.Compose([
+                tfs.Resize((713, 713)),
+                tfs.ToTensor(),
+                tfs.Normalize(mean=mean, std=std)
+            ])
+
+    def __getitem__(self, index):
+        # Get the original image and label paths from self.data_list (populated in __init__)
+        image_path, label_path = self.data_list[index]
+        
+        if self.split == 'val' and not os.path.isfile(image_path):
+            parts = image_path.split(os.sep)
+            try:
+                idx = parts.index("leftImg8bit")
+                # Expect the next folder to be "val"
+                if idx + 1 < len(parts) and parts[idx + 1] == "val":
+                    if idx + 2 < len(parts) and parts[idx + 2] != "val":
+                        parts.insert(idx + 2, "val")
+                        new_image_path = os.sep.join(parts)
+                        if os.path.isfile(new_image_path):
+                            print(f"Fixed image path:\n  {image_path}\n-> {new_image_path}")
+                            image_path = new_image_path
+            except ValueError:
+                
+                pass
+
+        # Read the image (BGR) and convert it to RGB.
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        if image is None:
+            raise RuntimeError("Failed to read image: " + image_path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = np.float32(image)
+        # Read the label (grayscale)
+        label = cv2.imread(label_path, cv2.IMREAD_GRAYSCALE)
+        if label is None:
+            raise RuntimeError("Failed to read label: " + label_path)
+        if image.shape[0] != label.shape[0] or image.shape[1] != label.shape[1]:
+            raise RuntimeError("Image & label shape mismatch: " + image_path + " " + label_path)
+        image, label = self.transform(image, label)
+        return image, label
+
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+names_path = os.path.join(PROJECT_ROOT, 'codes_and_models', 'cityscapes_names.txt')
+with open(names_path, 'r') as f:
+    class_names = [line.strip() for line in f.readlines()]
+num_classes = len(class_names)
+
+
+model = PSPNet(classes=num_classes)
+model = model.to(device)
+
+checkpoint_path = os.path.join(PROJECT_ROOT, 'codes_and_models', 'train_epoch_200_CPU.pth')
+state_dict = torch.load(checkpoint_path, map_location=device)
+model.load_state_dict(state_dict)
+model.eval()
+
+
+dataset_root = os.path.join(PROJECT_ROOT, 'cityscapes_dataset')
+data_list = os.path.join(dataset_root, 'list', 'cityscapes', 'fine_val.txt')
+
+# Use the evaluation subclass instead of the original dataset class.
+val_dataset = CityscapesEval(split='val', data_root=dataset_root, data_list=data_list)
+val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=2)
+
+# Iou
+def compute_iou(pred, target, num_classes):
+    ious = []
+    for cls in range(num_classes):
+        pred_inds = (pred == cls)
+        target_inds = (target == cls)
+        intersection = np.logical_and(pred_inds, target_inds).sum()
+        union = np.logical_or(pred_inds, target_inds).sum()
+        if union == 0:
+            ious.append(np.nan)
+        else:
+            ious.append(intersection / union)
+    return ious
+
+# Evaluation
+per_class_ious = {cls: [] for cls in range(num_classes)}
+image_scores = []
+
+with torch.no_grad():
+    for idx, batch in enumerate(val_loader):
+        image, gt = batch
+        image = image.to(device)
+        output = model(image)  # expected shape: (B, classes, H, W)
+        pred = output.argmax(dim=1).cpu().numpy()[0]  # assume batch size 1
+        gt = gt.cpu().numpy()[0]
+        ious = compute_iou(pred, gt, num_classes)
+        for cls, iou in enumerate(ious):
+            if not np.isnan(iou):
+                per_class_ious[cls].append(iou)
+        valid_ious = [iou for iou in ious if not np.isnan(iou)]
+        image_scores.append(np.mean(valid_ious) if valid_ious else np.nan)
+        if (idx + 1) % 50 == 0:
+            print(f"Processed {idx + 1} images")
+
+# Print
+mean_per_class = {}
+var_per_class = {}
+for cls in range(num_classes):
+    cls_ious = per_class_ious[cls]
+    if cls_ious:
+        mean_per_class[cls] = np.mean(cls_ious)
+        var_per_class[cls] = np.var(cls_ious)
+    else:
+        mean_per_class[cls] = np.nan
+        var_per_class[cls] = np.nan
+
+overall_mean = np.nanmean(image_scores)
+overall_var = np.nanvar(image_scores)
+
+print("\nPer-class IoU statistics:")
+for cls in range(num_classes):
+    cls_name = class_names[cls] if cls < len(class_names) else f"Class {cls}"
+    print(f"{cls_name:20s}: Mean IoU = {mean_per_class[cls]:.4f}, Variance = {var_per_class[cls]:.4f}")
+
+print("\nOverall per-image IoU statistics:")
+print(f"Mean IoU per image: {overall_mean:.4f}")
+print(f"Variance of IoU per image: {overall_var:.4f}")
+
+
+plt.figure(figsize=(15, 6))
+valid_classes = ~np.isnan([mean_per_class[cls] for cls in range(num_classes)])
+plt.bar(np.array(class_names)[valid_classes],
+        np.array([mean_per_class[cls] for cls in range(num_classes)])[valid_classes])
+plt.xticks(rotation=45, ha='right')
+plt.title('Mean IoU per Class')
+plt.tight_layout()
+
+# Save plot and results
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+plot_path = os.path.join(PROJECT_ROOT, f'iou_plot_{timestamp}.png')
+results_path = os.path.join(PROJECT_ROOT, f'evaluation_results_{timestamp}.txt')
+
+# Save plot
+plt.savefig(plot_path)
+plt.show()
+
+# Save detailed results to file
+with open(results_path, 'w') as f:
+    f.write("PSPNet Evaluation Results\n")
+    f.write("=======================\n\n")
+    f.write("Per-class IoU Results:\n")
+    f.write("---------------------\n")
+    for cls in range(num_classes):
+        cls_name = class_names[cls] if cls < len(class_names) else f"Class {cls}"
+        f.write(f"{cls_name:20s}: Mean IoU = {mean_per_class[cls]:.4f}, "
+               f"Variance = {var_per_class[cls]:.4f}\n")
+
+    f.write("\nOverall Results:\n")
+    f.write("---------------\n")
+    f.write(f"Mean IoU per image: {overall_mean:.4f}\n")
+    f.write(f"Variance of IoU per image: {overall_var:.4f}\n")
+
+print(f"\nResults saved to: {results_path}")
+print(f"Plot saved to: {plot_path}")
