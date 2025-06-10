@@ -14,7 +14,6 @@ This repository contains the assignments for the **Computer Vision & Graphics** 
 
 ## Exercise 1: Gaussian & Laplacian Pyramids
 
-**PDF:** `CV_PYRAMIDS.pdf`  
 **Topics Covered:**  
 - Multi‑scale image decomposition via **Gaussian** and **Laplacian pyramids**  
 - Building and blending image pyramids for denoising, feature extraction, compression and mosaicking  
@@ -31,7 +30,6 @@ This repository contains the assignments for the **Computer Vision & Graphics** 
 
 ## Exercise 2: Basic Geometric Transformations
 
-**PDF:** `CV_TRANSFORMATIONS.pdf`  
 **Topics Covered:**  
 - Familiarization with MATLAB/OpenCV functions: `imread`, `imwarp`, `affine2d`, `projective2d`, `imref2d`, `implay`  
 - Image scaling pyramid: compose an image of multiple scaled versions of itself  
@@ -48,7 +46,6 @@ This repository contains the assignments for the **Computer Vision & Graphics** 
 
 ## Exercise 3: Scale-Invariant Feature Transform (SIFT)
 
-**PDF:** `CV_3-SIFT.pdf`  
 **Topics Covered:**  
 - **Theory** of SIFT in four stages:  
   1. **Scale‑space extrema** detection via Difference of Gaussians  
@@ -66,7 +63,6 @@ This repository contains the assignments for the **Computer Vision & Graphics** 
 
 ## Exercise 4: Image Alignment & ECC / Lucas–Kanade Methods
 
-**PDF:** `Exercise 4 – Grigoris Tzortzakis.pdf`  
 **Topics Covered:**  
 - MATLAB scripts for image alignment:  
   - `ecc_lk_alignment.m`: compares **ECC** (Enhanced Correlation Coefficient) vs. **Lucas–Kanade** methods across multiple pyramid levels  
@@ -84,7 +80,6 @@ This repository contains the assignments for the **Computer Vision & Graphics** 
 
 ## Exercise 5: PCA, Autoencoders & Variational Autoencoders
 
-**PDF:** `CV_5_AUTOENCODERS.pdf`  
 **Topics Covered:**  
 1. **Principal Component Analysis (PCA)**  
    - Derivations via variance maximization and minimum projection error  
@@ -104,9 +99,3 @@ This repository contains the assignments for the **Computer Vision & Graphics** 
 
 ---
 
-## Getting Started
-
-1. **Clone** the repository:  
-   ```bash
-   git clone https://github.com/<your‑username>/CEID‑Computer‑Vision.git
-   cd CEID‑Computer‑Vision
