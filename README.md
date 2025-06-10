@@ -4,7 +4,7 @@ This repository contains the assignments for the **Computer Vision & Graphics** 
 
 ## Table of Contents
 
-1. [Exercise 1: Gaussian & Laplacian Pyramids](#exercise-1-gaussian--laplacian-pyramids)  
+1. [Exercise 1: Gaussian & Laplacian Pyramids](#https://github.com/GrigorisTzortzakis/Computer-Vision/blob/main/Exercise%201/Theory/CV_PYRAMIDS.pdf)  
 2. [Exercise 2: Basic Geometric Transformations](#exercise-2-basic-geometric-transformations)  
 3. [Exercise 3: Scale-Invariant Feature Transform (SIFT)](#exercise-3-scale-invariant-feature-transform-sift)  
 4. [Exercise 4: Image Alignment & ECC/LK Methods](#exercise-4-image-alignment--ecclk-methods)  
