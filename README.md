@@ -7,7 +7,7 @@ This repository contains the assignments for the **Computer Vision & Graphics** 
 1. [Exercise 1: Gaussian & Laplacian Pyramids](https://github.com/GrigorisTzortzakis/Computer-Vision/blob/main/Exercise%201/Theory/CV_PYRAMIDS.pdf)  
 2. [Exercise 2: Basic Geometric Transformations](https://github.com/GrigorisTzortzakis/Computer-Vision/blob/main/Exercise%202/Theory/CV_TRANSFORMATIONS.pdf)  
 3. [Exercise 3: Scale-Invariant Feature Transform (SIFT)](https://github.com/GrigorisTzortzakis/Computer-Vision/blob/main/Exercise%203/Theory/CV_3-SIFT.pdf)  
-4. [Exercise 4: Image Alignment & ECC/LK Methods](https://github.com/GrigorisTzortzakis/Computer-Vision/blob/main/Exercise%204/Theory/Grigoris_Tzortzakis_1084538_askhsh4.pdf)  
+4. [Exercise 4: Image Alignment & ECC/LK Methods](https://github.com/GrigorisTzortzakis/Computer-Vision/blob/main/Exercise%204/Theory/project_CV.pdf)  
 5. [Exercise 5: PCA, Autoencoders & Variational Autoencoders](https://github.com/GrigorisTzortzakis/Computer-Vision/blob/main/Exercise%205/Theory/CV_5_AUTOENCODERS.pdf)  
 
 ---
