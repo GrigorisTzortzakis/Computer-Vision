@@ -1,7 +1,112 @@
-# Computer Vision & Graphics Course Exercises
+# CEID Computer Vision & Graphics — Exercises Repository
 
-This repository contains a series of hands-on exercises and solutions for the Computer Vision & Graphics course in the Department of Computer Engineering and Informatics (CEID) for the 2024–2025 academic year. The assignments cover a range of core topics—including multi-scale image representations, geometric transformations, local feature detection, image mosaicking, autoencoder architectures, and state-of-the-art object detection networks. 
+This repository contains the assignments for the **Computer Vision & Graphics** lab (CEID, Department of Computer Engineering & Informatics, University of Patras). Each folder corresponds to one exercise, including problem statements, code and example outputs.
 
-## Assignments
+## Table of Contents
 
-### 1.
+1. [Exercise 1: Gaussian & Laplacian Pyramids](#exercise-1-gaussian--laplacian-pyramids)  
+2. [Exercise 2: Basic Geometric Transformations](#exercise-2-basic-geometric-transformations)  
+3. [Exercise 3: Scale-Invariant Feature Transform (SIFT)](#exercise-3-scale-invariant-feature-transform-sift)  
+4. [Exercise 4: Image Alignment & ECC/LK Methods](#exercise-4-image-alignment--ecclk-methods)  
+5. [Exercise 5: PCA, Autoencoders & Variational Autoencoders](#exercise-5-pca-autoencoders--variational-autoencoders)  
+
+---
+
+## Exercise 1: Gaussian & Laplacian Pyramids
+
+**PDF:** `CV_PYRAMIDS.pdf`  
+**Topics Covered:**  
+- Multi‑scale image decomposition via **Gaussian** and **Laplacian pyramids**  
+- Building and blending image pyramids for denoising, feature extraction, compression and mosaicking  
+- Implementing pyramids from first principles (filter design, convolution, decimation/interpolation) and verifying reconstruction  
+- Hands‑on MATLAB toolbox usage (`gen_Pyr`, `pyr_Reduce`, `pyr_Expand`, `pyrBlend`, `pyr_Reconstruct`)  
+- Brief overview of **Spatial Pyramid Pooling (SPP)** in deep CNNs and **Pyramid Pooling** for segmentation  
+
+**Objective:**  
+- Understand theory and practice of image pyramids  
+- Implement Gaussian and Laplacian pyramid construction and blending  
+- Apply to seamless image stitching and explore SPP layer concepts  
+
+---
+
+## Exercise 2: Basic Geometric Transformations
+
+**PDF:** `CV_TRANSFORMATIONS.pdf`  
+**Topics Covered:**  
+- Familiarization with MATLAB/OpenCV functions: `imread`, `imwarp`, `affine2d`, `projective2d`, `imref2d`, `implay`  
+- Image scaling pyramid: compose an image of multiple scaled versions of itself  
+- Periodic shearing animation of a sample image (`pudding.png`) and save as video  
+- Wind‑mill compositing: apply rotation, scaling, translation with masks for natural blending (`windmill_mask.png`, `windmill.png`, `windmill_back.jpeg`)  
+- Compare interpolation methods (`nearest`, `linear`, `cubic`) and document quality differences  
+- Ball animation over beach background: design custom trajectory and degeneration at the horizon  
+
+**Objective:**  
+- Gain hands‑on experience with affine and projective warps in MATLAB/OpenCV  
+- Create a variety of animated sequences demonstrating geometric transformations  
+
+---
+
+## Exercise 3: Scale-Invariant Feature Transform (SIFT)
+
+**PDF:** `CV_3-SIFT.pdf`  
+**Topics Covered:**  
+- **Theory** of SIFT in four stages:  
+  1. **Scale‑space extrema** detection via Difference of Gaussians  
+  2. **Keypoint localization**: selecting stable extrema, rejecting low‑contrast or edge responses  
+  3. **Orientation assignment**: computing gradient histograms around each keypoint  
+  4. **Descriptor formation**: 16×16 neighborhood histograms (4×4×8‑bin) for rotation invariance  
+- Detailed equations for Gaussian convolution, DoG, gradient magnitude/orientation, and histogram voting  
+
+**Objective:**  
+- Implement or use an existing SIFT pipeline  
+- Visualize detected keypoints and descriptors  
+- Understand the mathematical foundations of scale and rotation invariance  
+
+---
+
+## Exercise 4: Image Alignment & ECC / Lucas–Kanade Methods
+
+**PDF:** `Exercise 4 – Grigoris Tzortzakis.pdf`  
+**Topics Covered:**  
+- MATLAB scripts for image alignment:  
+  - `ecc_lk_alignment.m`: compares **ECC** (Enhanced Correlation Coefficient) vs. **Lucas–Kanade** methods across multiple pyramid levels  
+  - `spatial_interp.m`: inverse warping + interpolation (`interp2`) to sample warped image  
+  - `image_jacobian.m` + `warp_jacobian.m`: computing image and warp Jacobians for parameter updates  
+  - `param_update.m`: updating transformation parameters (translation, Euclidean, affine, homography)  
+- Experiments aligning video frames (high vs. low resolution; pure translation vs. combined warps)  
+- Analysis of **convergence speed**, **PSNR**, and effect of resolution on alignment quality  
+
+**Objective:**  
+- Dive deep into two popular iterative registration algorithms  
+- Measure performance and robustness under different distortions  
+
+---
+
+## Exercise 5: PCA, Autoencoders & Variational Autoencoders
+
+**PDF:** `CV_5_AUTOENCODERS.pdf`  
+**Topics Covered:**  
+1. **Principal Component Analysis (PCA)**  
+   - Derivations via variance maximization and minimum projection error  
+   - Eigenvalue decomposition vs. SVD formulations  
+   - Hands‑on on MNIST: mean digit, covariance, first 8 PCs, reconstructions for L = 1, 8, 16, 64, 256; error histograms  
+   - Kernel PCA: effect of centered vs. uncentered mappings, Gaussian kernel experiments  
+2. **Autoencoders (AE)**  
+   - Undercomplete (bottleneck) networks, linear vs. nonlinear, MSE vs. binary‐crossentropy loss  
+   - Connections between linear AE and PCA  
+3. **Variational Autoencoders (VAE)**  
+   - Probabilistic latent variables, encoder to parameterize posterior (`μ`, `σ`), KL divergence regularization  
+   - Reparameterization trick and decoder network  
+
+**Objective:**  
+- Compare PCA, (V)AE for dimensionality reduction and generative modeling  
+- Implement networks, visualize reconstructions and latent traversals  
+
+---
+
+## Getting Started
+
+1. **Clone** the repository:  
+   ```bash
+   git clone https://github.com/<your‑username>/CEID‑Computer‑Vision.git
+   cd CEID‑Computer‑Vision
